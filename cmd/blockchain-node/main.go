@@ -34,7 +34,7 @@ func main() {
 	// Check the cryptographic validity
 	isValid := block.VerifyBlock(newBlock)
 	if !isValid {
-		panic("Bloc invalide !")
+		panic("Invalid block !")
 	}
 
 	// Add the block to the db
@@ -43,7 +43,7 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println("Bloc ajouté avec succès !")
+	fmt.Println("Block added with success !")
 
 	// Read the block from the base to confirm the recording
 	storedBlock, err := store.GetBlock(newBlock.ID)

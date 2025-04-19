@@ -17,6 +17,7 @@ type Block struct {
     Signature    string
     PublicKey    []byte
     PreviousHash string
+    Version      int
 }
 
 func VerifyBlock(b Block) bool {
@@ -41,5 +42,6 @@ func CreateNewBlock(data string, privKey ed25519.PrivateKey, previousHash string
         Signature:    string(signature),
         PublicKey:    privKey.Public().(ed25519.PublicKey),
         PreviousHash: previousHash,
+        Version:      1,
 	}
 }

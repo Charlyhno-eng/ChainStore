@@ -26,6 +26,16 @@ func (s *BlockStore) AddBlock(b block.Block) error {
 		return err
 	}
 
+	err = s.db.Put([]byte(b.ID), data, nil)
+	if err != nil {
+		return err
+	}
+
+	err = s.db.Put([]byte("last"), []byte(b.ID), nil)
+	if err != nil {
+		return err
+	}
+
 	return s.db.Put([]byte(b.ID), data, nil)
 }
 
@@ -41,6 +51,15 @@ func (s *BlockStore) GetBlock(id string) (*block.Block, error) {
 	}
 
 	return &b, nil
+}
+
+func (s *BlockStore) GetLastBlock() (*block.Block, error) {
+	lastID, err := s.db.Get([]byte("last"), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.GetBlock(string(lastID))
 }
 
 func (s *BlockStore) Close() {

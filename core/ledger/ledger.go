@@ -2,6 +2,7 @@ package ledger
 
 import (
 	"ChainStore/core/block"
+	"crypto/ed25519"
 	"errors"
 )
 
@@ -15,11 +16,18 @@ func NewLedger() *Ledger {
     }
 }
 
-func (l *Ledger) AddBlock(b block.Block) error {
-    if !block.VerifyBlock(b) {
-        return errors.New("bloc invalide : signature incorrecte")
-    }
+func (l *Ledger) AddBlock(data string, privKey ed25519.PrivateKey) error {
+	var prevHash string
+	if len(l.Blocks) > 0 {
+		prevHash = l.Blocks[len(l.Blocks)-1].Hash()
+	}
 
-    l.Blocks = append(l.Blocks, b)
-    return nil
+	newBlock := block.CreateNewBlock(data, privKey, prevHash)
+
+	if !block.VerifyBlock(newBlock) {
+		return errors.New("bloc invalide")
+	}
+
+	l.Blocks = append(l.Blocks, newBlock)
+	return nil
 }

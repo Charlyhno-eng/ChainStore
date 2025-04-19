@@ -13,6 +13,7 @@ type Block struct {
     Timestamp time.Time
     Data      string
     Signature string
+    PublicKey []byte
 }
 
 func CreateNewBlock(data string, privKey ed25519.PrivateKey) Block {
@@ -24,5 +25,11 @@ func CreateNewBlock(data string, privKey ed25519.PrivateKey) Block {
         Timestamp: time.Now(),
         Data:      data,
         Signature: string(signature),
+        PublicKey: privKey.Public().(ed25519.PublicKey),
 	}
+}
+
+func VerifyBlock(b Block) bool {
+	message := []byte(b.Data)
+	return ed25519.Verify(b.PublicKey, message, []byte(b.Signature))
 }

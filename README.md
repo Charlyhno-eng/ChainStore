@@ -7,18 +7,18 @@ This is my first step in the Go language. The goal is to create a private blockc
 
 ## Steps
 
-- **(DONE)** Simple block creation
-- Adding a cryptographic signature
-- Adding a block chain
-- Implementing a block validation system
-- Creating a block registry
-- Verifying the validity of the entire chain
-- Block persistence
-- Networking: P2P communication between nodes
-- Implementing a consensus
-- Adding a CLI to interact with the node
-- REST API middleware to add/read blocks
-- Adding logs and traceability
----
-- Implementation of performance tests
-- Implementation of unit & integration testing
+Étape | État | Progression
+Simple block creation | ✅ | 100%
+Cryptographic signature | ✅ | 100%
+Block chain structure | ⚠️ | Perhaps between 30% en 50% 
+Block validation | ✅ | 100%
+Block registry (storage) | ✅ | 100%
+Full chain validation | ❌ | 0%
+Persistence | ✅ | 100%
+P2P Networking | ❌ | 0%
+Consensus | ❌ | 0%
+CLI | ❌ | 0%
+REST API | ❌ | 0%
+Logs & Trace | ❌ | 0%
+Performance testing | ❌ | 0%
+Unit/integration tests | ❌ | 0%

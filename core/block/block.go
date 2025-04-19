@@ -20,12 +20,12 @@ type Block struct {
     Version      int
 }
 
-func VerifyBlock(b Block) bool {
+func IsValidBlock(b Block) bool {
 	message := []byte(b.Data)
 	return ed25519.Verify(b.PublicKey, message, []byte(b.Signature))
 }
 
-func (b *Block) Hash() string {
+func (b *Block) ComputeHash() string {
 	data := b.ID + b.Timestamp.String() + b.Data + b.Signature + string(b.PublicKey) + b.PreviousHash
 	hash := sha256.Sum256([]byte(data))
 	return hex.EncodeToString(hash[:])

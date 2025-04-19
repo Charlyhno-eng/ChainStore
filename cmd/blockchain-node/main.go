@@ -25,14 +25,14 @@ func main() {
 	var previousHash string
 	lastBlock, err := store.GetLastBlock()
 	if err == nil && lastBlock != nil {
-		previousHash = lastBlock.Hash()
+		previousHash = lastBlock.ComputeHash()
 	}
 
 	// Create a new block with the previous hash
 	newBlock := block.CreateNewBlock("Hello blockchain!", privateKey, previousHash)
 
 	// Check the cryptographic validity
-	isValid := block.VerifyBlock(newBlock)
+	isValid := block.IsValidBlock(newBlock)
 	if !isValid {
 		panic("Invalid block !")
 	}

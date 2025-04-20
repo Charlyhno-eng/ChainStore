@@ -11,13 +11,13 @@ import (
 )
 
 type Block struct {
-    ID           string
-    Timestamp    time.Time
-    Data         string
-    Signature    string
-    PublicKey    []byte
-    PreviousHash string
-    Version      int
+	ID           string
+	Timestamp    time.Time
+	Data         string
+	Signature    string
+	PublicKey    []byte
+	PreviousHash string
+	Version      int
 }
 
 func IsValidBlock(b Block) bool {
@@ -33,15 +33,15 @@ func (b *Block) ComputeHash() string {
 
 func CreateNewBlock(data string, privKey ed25519.PrivateKey, previousHash string) Block {
 	message := []byte(data)
-    signature := cryptography.SignMessage(privKey, message)
+	signature := cryptography.SignMessage(privKey, message)
 
-    return Block {
+	return Block{
 		ID:           uuid.NewString(),
-        Timestamp:    time.Now(),
-        Data:         data,
-        Signature:    string(signature),
-        PublicKey:    privKey.Public().(ed25519.PublicKey),
-        PreviousHash: previousHash,
-        Version:      1,
+		Timestamp:    time.Now(),
+		Data:         data,
+		Signature:    string(signature),
+		PublicKey:    privKey.Public().(ed25519.PublicKey),
+		PreviousHash: previousHash,
+		Version:      1,
 	}
 }

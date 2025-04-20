@@ -8,50 +8,49 @@ import (
 )
 
 func main() {
-	// Generate a key pair 
+	// Generate a key pair
 	_, privateKey, err := cryptography.GenerateKeyPair()
 	if err != nil {
 		panic(err)
 	}
 
-	// Open the LevelDB db
+	// Open the LevelDB database
 	store, err := leveldb.NewBlockStore("data/blocks")
 	if err != nil {
 		panic(err)
 	}
 	defer store.Close()
 
-	// Determine the hash of the previous block
+	// Get the previous block hash if it exists
 	var previousHash string
 	lastBlock, err := store.GetLastBlock()
 	if err == nil && lastBlock != nil {
 		previousHash = lastBlock.ComputeHash()
 	}
 
-	// Create a new block with the previous hash
-	newBlock := block.CreateNewBlock("Hello blockchain!", privateKey, previousHash)
+	// Create a new block using the previous hash
+	newBlock := block.CreateNewBlock("Test blockchain!", privateKey, previousHash)
 
-	// Check the cryptographic validity
-	isValid := block.IsValidBlock(newBlock)
-	if !isValid {
-		panic("Invalid block !")
+	// Verify the cryptographic validity of the block
+	if !block.IsValidBlock(newBlock) {
+		panic("Invalid block")
 	}
 
-	// Add the block to the db
+	// Add the block to the database
 	err = store.AddBlock(newBlock)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println("Block added with success !")
+	fmt.Println("Block added successfully")
 
-	// Read the block from the base to confirm the recording
+	// Retrieve and display the block from the database
 	storedBlock, err := store.GetBlock(newBlock.ID)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("Block read from the database : %+v\n", storedBlock)
+	fmt.Printf("Block read from the database: %+v\n", storedBlock)
 }
 
 

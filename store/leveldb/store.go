@@ -3,6 +3,8 @@ package leveldb
 import (
 	"ChainStore/core/block"
 	"encoding/json"
+	"fmt"
+	"sort"
 
 	"github.com/syndtr/goleveldb/leveldb"
 )
@@ -60,6 +62,62 @@ func (s *BlockStore) GetLastBlock() (*block.Block, error) {
 	}
 
 	return s.GetBlock(string(lastID))
+}
+
+func (s *BlockStore) GetAllBlocks() ([]block.Block, error) {
+    var blocks []block.Block
+    iter := s.db.NewIterator(nil, nil)
+    defer iter.Release()
+
+    for iter.Next() {
+        key := string(iter.Key())
+        if key == "last" {
+            continue
+        }
+
+        var b block.Block
+        if err := json.Unmarshal(iter.Value(), &b); err != nil {
+            continue
+        }
+
+        blocks = append(blocks, b)
+    }
+
+    if err := iter.Error(); err != nil {
+        return nil, err
+    }
+
+    return blocks, nil
+}
+
+
+func (s *BlockStore) IsValidChain() (bool, error) {
+    blocks, err := s.GetAllBlocks()
+    if err != nil {
+        return false, err
+    }
+
+	if len(blocks) < 2 {
+        return true, nil
+    }
+
+    sort.Slice(blocks, func(i, j int) bool {
+        return blocks[i].Timestamp.Before(blocks[j].Timestamp)
+    })
+
+    for i := 1; i < len(blocks); i++ {
+        curr := blocks[i]
+        prev := blocks[i-1]
+
+        if !block.IsValidBlock(curr) {
+            return false, fmt.Errorf("invalid signature on block %s", curr.ID)
+        }
+		
+        if curr.PreviousHash != prev.ComputeHash() {
+            return false, fmt.Errorf("invalid linkage: %s -> %s", prev.ID, curr.ID)
+        }
+    }
+    return true, nil
 }
 
 func (s *BlockStore) Close() {

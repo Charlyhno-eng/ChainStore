@@ -21,6 +21,16 @@ func main() {
 	}
 	defer store.Close()
 
+	// Validate the integrity of the chain at startup
+	valid, err := store.IsValidChain()
+	if err != nil {
+		panic(fmt.Sprintf("Chain validation failed: %v", err))
+	}
+	if !valid {
+		panic("Blockchain integrity check failed")
+	}
+	fmt.Println("Blockchain integrity verified")
+
 	// Get the previous block hash if it exists
 	var previousHash string
 	lastBlock, err := store.GetLastBlock()
@@ -31,7 +41,10 @@ func main() {
 	// Create a new block using the previous hash
 	newBlock := block.CreateNewBlock("Test blockchain!", privateKey, previousHash)
 
-	// Verify the cryptographic validity of the block
+	// Print the generated signature for debugging purposes
+	fmt.Printf("Generated Signature: %s\n", newBlock.Signature)
+
+	// Verify the cryptographic validity of the block before adding it to the store
 	if !block.IsValidBlock(newBlock) {
 		panic("Invalid block")
 	}
@@ -52,6 +65,7 @@ func main() {
 
 	fmt.Printf("Block read from the database: %+v\n", storedBlock)
 }
+
 
 
 // go run cmd/blockchain-node/main.go

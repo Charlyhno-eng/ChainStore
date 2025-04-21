@@ -1,8 +1,108 @@
-=============== Apr 20, 2025 (CEST) ===============
-23:54:31.606921 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
-23:54:31.610544 db@open opening
-23:54:31.610972 version@stat F·[] S·0B[] Sc·[]
-23:54:31.612674 db@janitor F·2 G·0
-23:54:31.612688 db@open done T·2.135025ms
-23:54:31.613094 db@close closing
-23:54:31.613127 db@close done T·25.684µs
+=============== Apr 21, 2025 (CEST) ===============
+23:34:42.902649 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+23:34:42.906283 db@open opening
+23:34:42.906593 version@stat F·[] S·0B[] Sc·[]
+23:34:42.907923 db@janitor F·2 G·0
+23:34:42.907945 db@open done T·1.641618ms
+23:34:42.908465 db@close closing
+23:34:42.908490 db@close done T·24.475µs
+=============== Apr 21, 2025 (CEST) ===============
+23:34:45.057681 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+23:34:45.057957 version@stat F·[] S·0B[] Sc·[]
+23:34:45.057970 db@open opening
+23:34:45.058011 journal@recovery F·1
+23:34:45.058623 journal@recovery recovering @1
+23:34:45.063758 memdb@flush created L0@2 N·3 S·556B "d8c..4ea,v3":"last,v2"
+23:34:45.063934 version@stat F·[1] S·556B[556B] Sc·[0.25]
+23:34:45.068890 db@janitor F·3 G·0
+23:34:45.069207 db@open done T·10.933484ms
+23:34:45.070548 db@close closing
+23:34:45.070621 db@close done T·68.902µs
+=============== Apr 21, 2025 (CEST) ===============
+23:34:47.293245 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+23:34:47.293482 version@stat F·[1] S·556B[556B] Sc·[0.25]
+23:34:47.293493 db@open opening
+23:34:47.293537 journal@recovery F·1
+23:34:47.293966 journal@recovery recovering @3
+23:34:47.295834 memdb@flush created L0@5 N·3 S·592B "2a9..cf1,v7":"last,v6"
+23:34:47.295966 version@stat F·[2] S·1KiB[1KiB] Sc·[0.50]
+23:34:47.300335 db@janitor F·4 G·0
+23:34:47.300350 db@open done T·6.850621ms
+23:34:47.301287 db@close closing
+23:34:47.301319 db@close done T·30.341µs
+=============== Apr 21, 2025 (CEST) ===============
+23:34:49.298624 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+23:34:49.298946 version@stat F·[2] S·1KiB[1KiB] Sc·[0.50]
+23:34:49.298958 db@open opening
+23:34:49.298998 journal@recovery F·1
+23:34:49.299391 journal@recovery recovering @6
+23:34:49.304303 memdb@flush created L0@8 N·3 S·592B "865..a7f,v11":"last,v10"
+23:34:49.304454 version@stat F·[3] S·1KiB[1KiB] Sc·[0.75]
+23:34:49.309213 db@janitor F·5 G·0
+23:34:49.309234 db@open done T·10.268121ms
+23:34:49.311058 db@close closing
+23:34:49.311152 db@close done T·86.814µs
+=============== Apr 21, 2025 (CEST) ===============
+23:34:51.343954 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+23:34:51.344154 version@stat F·[3] S·1KiB[1KiB] Sc·[0.75]
+23:34:51.344163 db@open opening
+23:34:51.344192 journal@recovery F·1
+23:34:51.344483 journal@recovery recovering @9
+23:34:51.348992 memdb@flush created L0@11 N·3 S·592B "a96..b42,v15":"last,v14"
+23:34:51.349071 version@stat F·[4] S·2KiB[2KiB] Sc·[1.00]
+23:34:51.353923 db@janitor F·6 G·0
+23:34:51.353934 db@open done T·9.767007ms
+23:34:51.354112 table@compaction L0·4 -> L1·0 S·2KiB Q·16
+23:34:51.354989 db@close closing
+23:34:51.355820 table@build created L1@14 N·5 S·1KiB "2a9..cf1,v7":"last,v14"
+23:34:51.355830 table@build exiting
+23:34:51.355835 table@build revert @14
+23:34:51.355914 db@close done T·922.946µs
+=============== Apr 21, 2025 (CEST) ===============
+23:34:53.729032 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+23:34:53.729252 version@stat F·[4] S·2KiB[2KiB] Sc·[1.00]
+23:34:53.729261 db@open opening
+23:34:53.729310 journal@recovery F·1
+23:34:53.729727 journal@recovery recovering @12
+23:34:53.734990 memdb@flush created L0@14 N·3 S·607B "186..4bc,v19":"last,v18"
+23:34:53.735165 version@stat F·[5] S·2KiB[2KiB] Sc·[1.25]
+23:34:53.741994 db@janitor F·7 G·0
+23:34:53.742013 db@open done T·12.74457ms
+23:34:53.742219 table@compaction L0·5 -> L1·0 S·2KiB Q·20
+23:34:53.743286 db@close closing
+23:34:53.744020 table@build created L1@17 N·6 S·1KiB "186..4bc,v19":"last,v18"
+23:34:53.744033 table@build exiting
+23:34:53.744036 table@build revert @17
+23:34:53.744105 db@close done T·818.428µs
+=============== Apr 21, 2025 (CEST) ===============
+23:34:55.938056 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+23:34:55.938230 version@stat F·[5] S·2KiB[2KiB] Sc·[1.25]
+23:34:55.938237 db@open opening
+23:34:55.938276 journal@recovery F·1
+23:34:55.938568 journal@recovery recovering @15
+23:34:55.943137 memdb@flush created L0@17 N·3 S·607B "c38..5ad,v23":"last,v22"
+23:34:55.943259 version@stat F·[6] S·3KiB[3KiB] Sc·[1.50]
+23:34:55.947972 db@janitor F·8 G·0
+23:34:55.947984 db@open done T·9.741744ms
+23:34:55.948173 table@compaction L0·6 -> L1·0 S·3KiB Q·24
+23:34:55.949451 db@close closing
+23:34:55.949869 table@build created L1@20 N·7 S·2KiB "186..4bc,v19":"last,v22"
+23:34:55.949885 table@build exiting
+23:34:55.949887 table@build revert @20
+23:34:55.949942 db@close done T·490.319µs
+=============== Apr 21, 2025 (CEST) ===============
+23:34:58.120446 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+23:34:58.120730 version@stat F·[6] S·3KiB[3KiB] Sc·[1.50]
+23:34:58.120740 db@open opening
+23:34:58.120785 journal@recovery F·1
+23:34:58.121218 journal@recovery recovering @18
+23:34:58.127056 memdb@flush created L0@20 N·3 S·592B "b3e..683,v27":"last,v26"
+23:34:58.127200 version@stat F·[7] S·4KiB[4KiB] Sc·[1.75]
+23:34:58.131939 db@janitor F·9 G·0
+23:34:58.131953 db@open done T·11.207425ms
+23:34:58.132147 table@compaction L0·7 -> L1·0 S·4KiB Q·28
+23:34:58.133457 db@close closing
+23:34:58.134132 table@build created L1@23 N·8 S·2KiB "186..4bc,v19":"last,v26"
+23:34:58.134140 table@build exiting
+23:34:58.134142 table@build revert @23
+23:34:58.134197 db@close done T·739.947µs

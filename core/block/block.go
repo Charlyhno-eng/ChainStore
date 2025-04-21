@@ -21,8 +21,13 @@ type Block struct {
 }
 
 func IsValidBlock(b Block) bool {
+	signature, err := hex.DecodeString(b.Signature)
+	if err != nil {
+		return false
+	}
+
 	message := []byte(b.Data)
-	return ed25519.Verify(b.PublicKey, message, []byte(b.Signature))
+	return ed25519.Verify(b.PublicKey, message, signature)
 }
 
 func (b *Block) ComputeHash() string {
@@ -39,7 +44,7 @@ func CreateNewBlock(data string, privKey ed25519.PrivateKey, previousHash string
 		ID:           uuid.NewString(),
 		Timestamp:    time.Now(),
 		Data:         data,
-		Signature:    string(signature),
+		Signature:    hex.EncodeToString(signature),
 		PublicKey:    privKey.Public().(ed25519.PublicKey),
 		PreviousHash: previousHash,
 		Version:      1,

@@ -16,7 +16,7 @@ This is my first step in the Go language. The goal is to create a private blockc
 | Block registry (storage)       | Ok        | 100%        |
 | Full chain validation          | Ok        | 100%        |
 | Persistence                    | Ok        | 100%        |
-| P2P Networking                 | Not ok    | 0%          |
+| P2P Networking                 | Not ok    | 70%          |
 | Consensus                      | Not ok    | 0%          |
 | CLI                            | Not ok    | 0%          |
 | REST API                       | Not ok    | 0%          |

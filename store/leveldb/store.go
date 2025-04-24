@@ -90,6 +90,36 @@ func (s *BlockStore) GetAllBlocks() ([]block.Block, error) {
     return blocks, nil
 }
 
+func (bs *BlockStore) GetHeight() int {
+	blocks, err := bs.GetAllBlocks()
+	if err != nil {
+		return 0
+	}
+	return len(blocks)
+}
+
+func (s *BlockStore) GetBlocksFromHeight(height int) ([]*block.Block, error) {
+	all, err := s.GetAllBlocks()
+	if err != nil {
+		return nil, err
+	}
+
+	sort.Slice(all, func(i, j int) bool {
+		return all[i].Timestamp.Before(all[j].Timestamp)
+	})
+
+	if height >= len(all) {
+		return []*block.Block{}, nil
+	}
+
+	var result []*block.Block
+	for i := height; i < len(all); i++ {
+		b := all[i]
+		result = append(result, &b)
+	}
+
+	return result, nil
+}
 
 func (s *BlockStore) IsValidChain() (bool, error) {
     blocks, err := s.GetAllBlocks()

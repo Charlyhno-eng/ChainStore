@@ -36,32 +36,36 @@ func validateChain(store *leveldb.BlockStore) {
 }
 
 func createAndStoreBlock(store *leveldb.BlockStore, privateKey ed25519.PrivateKey) {
-	var previousHash string
-	lastBlock, err := store.GetLastBlock()
-	if err == nil && lastBlock != nil {
-		previousHash = lastBlock.ComputeHash()
-	}
+    var previousHash string
 
-	newBlock := block.CreateNewBlock("Test blockchain!", privateKey, previousHash)
+    lastBlock, err := store.GetLastBlock()
+    if err != nil {
+        lastBlock = nil
+    }
 
-	fmt.Printf("Generated Signature: %s\n", newBlock.Signature)
+    if lastBlock != nil {
+        previousHash = lastBlock.ComputeHash()
+    }
 
-	if !block.IsValidBlock(newBlock) {
-		panic("Invalid block")
-	}
+    newBlock := block.CreateNewBlock("Test blockchain!", privateKey, previousHash)
+    fmt.Printf("Generated Signature: %s\n", newBlock.Signature)
 
-	if err := store.AddBlock(newBlock); err != nil {
-		panic(err)
-	}
+    if !block.IsValidBlock(newBlock) {
+        panic("Invalid block: block failed validity check")
+    }
 
-	fmt.Println("Block added successfully")
+    if err := store.AddBlock(newBlock); err != nil {
+        panic(fmt.Sprintf("Error adding block to store: %v", err))
+    }
 
-	storedBlock, err := store.GetBlock(newBlock.ID)
-	if err != nil {
-		panic(err)
-	}
+    fmt.Println("Block added successfully")
 
-	fmt.Printf("Block read from the database: %+v\n", storedBlock)
+    storedBlock, err := store.GetBlock(newBlock.ID)
+    if err != nil {
+        panic(fmt.Sprintf("Error retrieving block from store: %v", err))
+    }
+
+    fmt.Printf("Block read from the database: %+v\n", storedBlock)
 }
 
 func setupNetworkNode(store *leveldb.BlockStore) *network.Node {
@@ -78,23 +82,21 @@ func setupNetworkNode(store *leveldb.BlockStore) *network.Node {
 func main() {
 	_, privateKey, err := generateKeys()
 	if err != nil {
-		panic(err)
+		panic(fmt.Sprintf("Error generating keys: %v", err))
 	}
 
 	store, err := initStore()
 	if err != nil {
-		panic(err)
+		panic(fmt.Sprintf("Error initializing store: %v", err))
 	}
 	defer store.Close()
 
 	validateChain(store)
 	createAndStoreBlock(store, privateKey)
-
 	setupNetworkNode(store)
 
 	select {}
 }
-
 
 
 // go run cmd/blockchain-node/main.go

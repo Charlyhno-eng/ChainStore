@@ -3,67 +3,96 @@ package main
 import (
 	"ChainStore/core/block"
 	"ChainStore/core/cryptography"
+	"ChainStore/core/network"
 	"ChainStore/store/leveldb"
+	"crypto/ed25519"
 	"fmt"
 )
 
-func main() {
-	// Generate a key pair
-	_, privateKey, err := cryptography.GenerateKeyPair()
-	if err != nil {
-		panic(err)
-	}
-
-	// Open the LevelDB database
+func initStore() (*leveldb.BlockStore, error) {
 	store, err := leveldb.NewBlockStore("data/blocks")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	defer store.Close()
 
-	// Validate the integrity of the chain at startup
+	return store, nil
+}
+
+func generateKeys() (ed25519.PublicKey, ed25519.PrivateKey, error) {
+	return cryptography.GenerateKeyPair()
+}
+
+func validateChain(store *leveldb.BlockStore) {
 	valid, err := store.IsValidChain()
 	if err != nil {
 		panic(fmt.Sprintf("Chain validation failed: %v", err))
 	}
+
 	if !valid {
 		panic("Blockchain integrity check failed")
 	}
-	fmt.Println("Blockchain integrity verified")
 
-	// Get the previous block hash if it exists
+	fmt.Println("Blockchain integrity verified")
+}
+
+func createAndStoreBlock(store *leveldb.BlockStore, privateKey ed25519.PrivateKey) {
 	var previousHash string
 	lastBlock, err := store.GetLastBlock()
 	if err == nil && lastBlock != nil {
 		previousHash = lastBlock.ComputeHash()
 	}
 
-	// Create a new block using the previous hash
 	newBlock := block.CreateNewBlock("Test blockchain!", privateKey, previousHash)
 
-	// Print the generated signature for debugging purposes
 	fmt.Printf("Generated Signature: %s\n", newBlock.Signature)
 
-	// Verify the cryptographic validity of the block before adding it to the store
 	if !block.IsValidBlock(newBlock) {
 		panic("Invalid block")
 	}
 
-	// Add the block to the database
-	err = store.AddBlock(newBlock)
-	if err != nil {
+	if err := store.AddBlock(newBlock); err != nil {
 		panic(err)
 	}
 
 	fmt.Println("Block added successfully")
 
-	// Retrieve and display the block from the database
 	storedBlock, err := store.GetBlock(newBlock.ID)
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Printf("Block read from the database: %+v\n", storedBlock)
+}
+
+func setupNetworkNode(store *leveldb.BlockStore) *network.Node {
+	node := network.NewNode("localhost:3000", store)
+
+	go node.Listen("3000")
+
+	node.ConnectToPeer("localhost:3001")
+	node.Broadcast(network.Message{Type: "ping"})
+
+	return node
+}
+
+func main() {
+	_, privateKey, err := generateKeys()
+	if err != nil {
+		panic(err)
+	}
+
+	store, err := initStore()
+	if err != nil {
+		panic(err)
+	}
+	defer store.Close()
+
+	validateChain(store)
+	createAndStoreBlock(store, privateKey)
+
+	setupNetworkNode(store)
+
+	select {}
 }
 
 

@@ -7,19 +7,19 @@ This is my first step in the Go language. The goal is to create a private blockc
 
 ## Steps
 
-| Step                          | State     | Progression |
-|-------------------------------|-----------|-------------|
-| Simple block creation          | Ok        | 100%        |
-| Cryptographic signature        | Ok        | 100%        |
-| Block chain structure          | Ok        | 100%        |
-| Block validation               | Ok        | 100%        |
-| Block registry (storage)       | Ok        | 100%        |
-| Full chain validation          | Ok        | 100%        |
-| Persistence                    | Ok        | 100%        |
-| P2P Networking                 | Not ok    | 70%          |
-| Consensus                      | Not ok    | 0%          |
-| CLI                            | Not ok    | 0%          |
-| REST API                       | Not ok    | 0%          |
-| Logs & Trace                   | Not ok    | 0%          |
-| Performance testing            | Not ok    | 0%          |
-| Unit/integration tests         | Not ok    | 0%          |
+| Step                     | State       | Progression |
+| ------------------------ | ----------- | ----------- |
+| Simple block creation    | ✅ Ok        | 100%        |
+| Cryptographic signature  | ✅ Ok        | 100%        |
+| Block chain structure    | ✅ Ok        | 100%        |
+| Block validation         | ✅ Ok        | 100%        |
+| Block registry (storage) | ✅ Ok        | 100%        |
+| Full chain validation    | ✅ Ok        | 100%        |
+| Persistence              | ✅ Ok        | 100%        |
+| P2P Networking           | 🟡 In Progress | **85%**     |
+| Consensus                | ❌ Not Ok  | 0%          |
+| CLI                      | ❌ Not Ok  | 0%          |
+| REST API                 | ❌ Not Ok  | 0%          |
+| Logs & Trace             | 🟡 In Progress  | **20%**     |
+| Performance testing      | ❌ Not Ok  | 0%          |
+| Unit/integration tests   | ❌ Not Ok  | 0%          |

@@ -150,6 +150,11 @@ func (s *BlockStore) IsValidChain() (bool, error) {
     return true, nil
 }
 
+func (bs *BlockStore) HasBlock(id string) bool {
+	_, err := bs.GetBlock(id)
+	return err == nil
+}
+
 func (s *BlockStore) Close() {
 	s.db.Close()
 }

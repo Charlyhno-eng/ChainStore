@@ -35,7 +35,7 @@ func validateChain(store *leveldb.BlockStore) {
 	fmt.Println("Blockchain integrity verified")
 }
 
-func createAndStoreBlock(store *leveldb.BlockStore, privateKey ed25519.PrivateKey) {
+func createAndStoreBlock(store *leveldb.BlockStore, privateKey ed25519.PrivateKey, node *network.Node) {
     var previousHash string
 
     lastBlock, err := store.GetLastBlock()
@@ -66,6 +66,11 @@ func createAndStoreBlock(store *leveldb.BlockStore, privateKey ed25519.PrivateKe
     }
 
     fmt.Printf("Block read from the database: %+v\n", storedBlock)
+
+    node.Broadcast(network.Message{
+        Type: "new_block",
+        Data: newBlock,
+    })
 }
 
 func setupNetworkNode(store *leveldb.BlockStore) *network.Node {
@@ -92,11 +97,13 @@ func main() {
 	defer store.Close()
 
 	validateChain(store)
-	createAndStoreBlock(store, privateKey)
-	setupNetworkNode(store)
+
+	node := setupNetworkNode(store)
+	createAndStoreBlock(store, privateKey, node)
 
 	select {}
 }
+
 
 
 // go run cmd/blockchain-node/main.go

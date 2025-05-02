@@ -49,6 +49,25 @@ func (n *Node) handlePing(conn net.Conn) {
 	log.Printf("Ping received from %s", conn.RemoteAddr())
 }
 
+func (n *Node) requestMissingBlocksFrom(peerAddr string, fromHeight int) {
+    peer := n.Peers[peerAddr]
+    if peer == nil {
+        log.Printf("Peer %s not found", peerAddr)
+        return
+    }
+
+    req := Message{
+        Type: "blocks_request",
+        Data: BlocksRequestPayload{FromHeight: fromHeight},
+    }
+
+    if err := peer.Writer.Encode(req); err != nil {
+        log.Printf("Failed to request blocks from %s: %v", peerAddr, err)
+    } else {
+        log.Printf("Requested missing blocks from %s starting at height %d", peerAddr, fromHeight)
+    }
+}
+
 func (n *Node) handleHandshake(_ net.Conn, msg Message) {
 	var payload HandshakePayload
 	raw, _ := json.Marshal(msg.Data)
@@ -58,6 +77,13 @@ func (n *Node) handleHandshake(_ net.Conn, msg Message) {
 	}
 
 	log.Printf("Handshake received from %s - Height: %d", payload.Address, payload.Height)
+
+	currentHeight := n.Blockchain.GetHeight()
+
+	if currentHeight < payload.Height {
+		log.Printf("Current height %d < peer height %d. Requesting missing blocks...", currentHeight, payload.Height)
+		go n.requestMissingBlocksFrom(payload.Address, currentHeight)
+	}
 }
 
 func (n *Node) handleBlocksRequest(conn net.Conn, msg Message) {
@@ -107,6 +133,11 @@ func (n *Node) handleNewBlock(_ net.Conn, msg Message) {
 	raw, _ := json.Marshal(msg.Data)
 	if err := json.Unmarshal(raw, &b); err != nil {
 		log.Printf("Invalid new_block payload: %v", err)
+		return
+	}
+
+	if n.Blockchain.HasBlock(b.ID) {
+		log.Printf("Block %s already exists, skipping processing", b.ID)
 		return
 	}
 

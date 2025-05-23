@@ -7,6 +7,7 @@ import (
 	"ChainStore/store/leveldb"
 	"crypto/ed25519"
 	"fmt"
+	"log"
 )
 
 func initStore() (*leveldb.BlockStore, error) {
@@ -85,24 +86,30 @@ func setupNetworkNode(store *leveldb.BlockStore) *network.Node {
 }
 
 func main() {
-	_, privateKey, err := generateKeys()
-	if err != nil {
-		panic(fmt.Sprintf("Error generating keys: %v", err))
-	}
+    _, privateKey, err := generateKeys()
+    if err != nil {
+        panic(fmt.Sprintf("Error generating keys: %v", err))
+    }
 
-	store, err := initStore()
-	if err != nil {
-		panic(fmt.Sprintf("Error initializing store: %v", err))
-	}
-	defer store.Close()
+    store, err := initStore()
+    if err != nil {
+        panic(fmt.Sprintf("Error initializing store: %v", err))
+    }
+    defer store.Close()
 
-	validateChain(store)
+    validateChain(store)
 
-	node := setupNetworkNode(store)
-	createAndStoreBlock(store, privateKey, node)
+    node := setupNetworkNode(store)
 
-	select {}
+    if err := node.SyncChain("localhost:3001"); err != nil {
+        log.Printf("Chain sync failed: %v", err)
+    }
+
+    createAndStoreBlock(store, privateKey, node)
+
+    select {}
 }
+
 
 
 

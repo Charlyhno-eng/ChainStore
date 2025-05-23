@@ -4,6 +4,7 @@ import (
 	"ChainStore/core/block"
 	"ChainStore/store/leveldb"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net"
 )
@@ -129,38 +130,38 @@ func (n *Node) handleBlocksResponse(_ net.Conn, msg Message) {
 }
 
 func (n *Node) handleNewBlock(_ net.Conn, msg Message) {
-	var b block.Block
-	raw, _ := json.Marshal(msg.Data)
-	if err := json.Unmarshal(raw, &b); err != nil {
-		log.Printf("Invalid new_block payload: %v", err)
-		return
-	}
+    var b block.Block
+    raw, _ := json.Marshal(msg.Data)
+    if err := json.Unmarshal(raw, &b); err != nil {
+        log.Printf("Invalid new_block payload: %v", err)
+        return
+    }
 
-	if n.Blockchain.HasBlock(b.ID) {
-		log.Printf("Block %s already exists, skipping processing", b.ID)
-		return
-	}
+    log.Printf("New block received: %s", b.ID)
 
-	log.Printf("New block received: %s", b.ID)
+    if n.Blockchain.HasBlock(b.ID) {
+        log.Printf("Block %s already exists, skipping processing", b.ID)
+        return
+    }
 
-	if !block.IsValidBlock(b) {
-		log.Printf("Invalid block received: %s", b.ID)
-		return
-	}
+    if !block.IsValidBlock(b) {
+        log.Printf("Invalid block received: %s", b.ID)
+        return
+    }
 
-	if err := n.Blockchain.AddBlock(b); err != nil {
-		log.Printf("Error adding block %s: %v", b.ID, err)
-		return
-	}
+    if err := n.Blockchain.AddBlock(b); err != nil {
+        log.Printf("Error adding block %s: %v", b.ID, err)
+        return
+    }
 
-	log.Printf("Block %s successfully added to the blockchain", b.ID)
+    log.Printf("Block %s successfully added to the blockchain", b.ID)
 
-	n.Broadcast(Message{
-		Type: "new_block",
-		Data: b,
-	})
+    n.Broadcast(Message{
+        Type: "new_block",
+        Data: b,
+    })
 
-	log.Printf("Block %s broadcasted to peers", b.ID)
+    log.Printf("Block %s broadcasted to peers", b.ID)
 }
 
 func (n *Node) SendHandshake(peer *Peer) {
@@ -224,6 +225,24 @@ func (n *Node) handleConnection(conn net.Conn) {
 			return
 		}
 
+		if msg.Type == "get_chain" {
+			blocks, err := n.Blockchain.GetAllBlocks()
+			if err != nil {
+				log.Printf("Error retrieving blocks: %v", err)
+				return
+			}
+
+			response := Message{
+				Type: "chain",
+				Data: blocks,
+			}
+
+			if err := encoder.Encode(response); err != nil {
+				log.Printf("Failed to send chain response: %v", err)
+			}
+			continue
+		}
+
 		n.handleMessage(conn, msg)
 	}
 }
@@ -262,4 +281,68 @@ func NewNode(address string, blockchain *leveldb.BlockStore) *Node {
 		Peers:      make(map[string]*Peer),
 		Blockchain: blockchain,
 	}
+}
+
+func (n *Node) SyncChain(peerAddress string) error {
+    conn, err := net.Dial("tcp", peerAddress)
+    if err != nil {
+        return fmt.Errorf("failed to connect to peer: %v", err)
+    }
+    defer conn.Close()
+
+    request := Message{Type: "get_chain", Data: nil}
+    encoder := json.NewEncoder(conn)
+    if err := encoder.Encode(request); err != nil {
+        return fmt.Errorf("failed to send get_chain request: %v", err)
+    }
+
+    decoder := json.NewDecoder(conn)
+    var response Message
+    if err := decoder.Decode(&response); err != nil {
+        return fmt.Errorf("failed to decode chain response: %v", err)
+    }
+
+    if response.Type != "chain" {
+        return fmt.Errorf("unexpected response type: %s", response.Type)
+    }
+
+    raw, _ := json.Marshal(response.Data)
+    var blocks []block.Block
+    if err := json.Unmarshal(raw, &blocks); err != nil {
+        return fmt.Errorf("failed to unmarshal blocks: %v", err)
+    }
+
+    for _, b := range blocks {
+        if !n.Blockchain.HasBlock(b.ID) {
+            if !block.IsValidBlock(b) {
+                log.Printf("Invalid block received during sync: %s", b.ID)
+                continue
+            }
+            if err := n.Blockchain.AddBlock(b); err != nil {
+                log.Printf("Error adding block during sync: %v", err)
+            } else {
+                log.Printf("Block %s added during sync", b.ID)
+            }
+        }
+    }
+
+    return nil
+}
+
+func (n *Node) handleGetChain(conn net.Conn, msg Message) {
+    blocks, err := n.Blockchain.GetAllBlocks()
+    if err != nil {
+        log.Printf("Error retrieving blocks: %v", err)
+        return
+    }
+
+    response := Message{
+        Type: "chain",
+        Data: blocks,
+    }
+
+    encoder := json.NewEncoder(conn)
+    if err := encoder.Encode(response); err != nil {
+        log.Printf("Failed to send chain response: %v", err)
+    }
 }

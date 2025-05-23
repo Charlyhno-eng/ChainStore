@@ -8,6 +8,7 @@ import (
 	"crypto/ed25519"
 	"fmt"
 	"log"
+	"time"
 )
 
 func initStore() (*leveldb.BlockStore, error) {
@@ -15,7 +16,6 @@ func initStore() (*leveldb.BlockStore, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return store, nil
 }
 
@@ -28,89 +28,92 @@ func validateChain(store *leveldb.BlockStore) {
 	if err != nil {
 		panic(fmt.Sprintf("Chain validation failed: %v", err))
 	}
-
 	if !valid {
 		panic("Blockchain integrity check failed")
 	}
-
 	fmt.Println("Blockchain integrity verified")
 }
 
-func createAndStoreBlock(store *leveldb.BlockStore, privateKey ed25519.PrivateKey, node *network.Node) {
-    var previousHash string
+func createAndStoreBlockWithData(store *leveldb.BlockStore, privateKey ed25519.PrivateKey, node *network.Node, data string) {
+	var previousHash string
 
-    lastBlock, err := store.GetLastBlock()
-    if err != nil {
-        lastBlock = nil
-    }
+	lastBlock, err := store.GetLastBlock()
+	if err != nil {
+		lastBlock = nil
+	}
 
-    if lastBlock != nil {
-        previousHash = lastBlock.ComputeHash()
-    }
+	if lastBlock != nil {
+		previousHash = lastBlock.ComputeHash()
+	}
 
-    newBlock := block.CreateNewBlock("Test blockchain!", privateKey, previousHash)
-    fmt.Printf("Generated Signature: %s\n", newBlock.Signature)
+	newBlock := block.CreateNewBlock(data, privateKey, previousHash)
+	fmt.Printf("Generated Signature: %s\n", newBlock.Signature)
 
-    if !block.IsValidBlock(newBlock) {
-        panic("Invalid block: block failed validity check")
-    }
+	if !block.IsValidBlock(newBlock) {
+		log.Printf("Invalid block: block failed validity check")
+		return
+	}
 
-    if err := store.AddBlock(newBlock); err != nil {
-        panic(fmt.Sprintf("Error adding block to store: %v", err))
-    }
+	if err := store.AddBlock(newBlock); err != nil {
+		log.Printf("Error adding block to store: %v", err)
+		return
+	}
 
-    fmt.Println("Block added successfully")
+	fmt.Println("Block added successfully")
 
-    storedBlock, err := store.GetBlock(newBlock.ID)
-    if err != nil {
-        panic(fmt.Sprintf("Error retrieving block from store: %v", err))
-    }
+	storedBlock, err := store.GetBlock(newBlock.ID)
+	if err != nil {
+		log.Printf("Error retrieving block from store: %v", err)
+		return
+	}
 
-    fmt.Printf("Block read from the database: %+v\n", storedBlock)
+	fmt.Printf("Block read from the database: %+v\n", storedBlock)
 
-    node.Broadcast(network.Message{
-        Type: "new_block",
-        Data: newBlock,
-    })
+	node.Broadcast(network.Message{
+		Type: "new_block",
+		Data: newBlock,
+	})
 }
 
 func setupNetworkNode(store *leveldb.BlockStore) *network.Node {
 	node := network.NewNode("localhost:3000", store)
-
 	go node.Listen("3000")
-
 	node.ConnectToPeer("localhost:3001")
 	node.Broadcast(network.Message{Type: "ping"})
-
 	return node
 }
 
 func main() {
-    _, privateKey, err := generateKeys()
-    if err != nil {
-        panic(fmt.Sprintf("Error generating keys: %v", err))
-    }
+	_, privateKey, err := generateKeys()
+	if err != nil {
+		panic(fmt.Sprintf("Error generating keys: %v", err))
+	}
 
-    store, err := initStore()
-    if err != nil {
-        panic(fmt.Sprintf("Error initializing store: %v", err))
-    }
-    defer store.Close()
+	store, err := initStore()
+	if err != nil {
+		panic(fmt.Sprintf("Error initializing store: %v", err))
+	}
+	defer store.Close()
 
-    validateChain(store)
+	validateChain(store)
 
-    node := setupNetworkNode(store)
+	node := setupNetworkNode(store)
 
-    if err := node.SyncChain("localhost:3001"); err != nil {
-        log.Printf("Chain sync failed: %v", err)
-    }
+	if err := node.SyncChain("localhost:3001"); err != nil {
+		log.Printf("Chain sync failed: %v", err)
+	}
 
-    createAndStoreBlock(store, privateKey, node)
+	createAndStoreBlockWithData(store, privateKey, node, "Test blockchain!")
 
-    select {}
+	// create a block every minute
+	go func() {
+		for {
+			time.Sleep(60 * time.Second)
+			timestamp := time.Now().Format(time.RFC3339)
+			data := fmt.Sprintf("Auto block %s", timestamp)
+			createAndStoreBlockWithData(store, privateKey, node, data)
+		}
+	}()
+
+	select {}
 }
-
-
-
-
-// go run cmd/blockchain-node/main.go
